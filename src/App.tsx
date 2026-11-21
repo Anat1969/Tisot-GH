@@ -82,7 +82,7 @@ export default function App() {
           <div className="sheet" role="dialog" aria-label="איך זה עובד" onClick={(e) => e.stopPropagation()}>
             <h2>ההזדמנות מוצאת אותך</h2>
             <ol>
-              <li><b>רדאר.</b> כל 5 דקות נסרק חלק מלוח המחירים הציבורי של Google Flights, מתל אביב ל-{board?.dests.filter((d) => d.active).length} יעדים.</li>
+              <li><b>רדאר.</b> כל שעתיים נסרק חלק מלוח המחירים הציבורי של Google Flights, מתל אביב ל-{board?.dests.filter((d) => d.active).length} יעדים.</li>
               <li><b>הזדמנות.</b> מחיר שנמוך בהרבה מהמחיר הרגיל של אותו יעד. יציאה ב-60 הימים הקרובים מקבלת עדיפות.</li>
               <li><b>טיול.</b> לכל הזדמנות: מדריך מקומי, מפה ולוויין, מסלול לפי ימים, לינה ב-Booking ויומן.</li>
             </ol>
