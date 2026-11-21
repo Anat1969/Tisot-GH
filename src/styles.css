@@ -68,7 +68,7 @@ mark { background: linear-gradient(transparent 55%, var(--marker) 55%); color: i
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .months { margin-top: 24px; flex: 1; display: flex; flex-direction: column; min-height: 150px; }
 .bars { display: flex; gap: 6px; align-items: flex-end; flex: 1; min-height: 96px; max-height: 300px; margin-top: auto; }
-.bar-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; background: none; border: 0; padding: 0; gap: 2px; }
+.bar-col { flex: 1; min-width: 0; max-width: 96px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; background: none; border: 0; padding: 0; gap: 2px; }
 .bar-col i { display: block; background: var(--rule); transition: height .5s; }
 .bar-col.cheap i { background: var(--deal); }
 .bar-col:hover i { background: var(--ink); }
