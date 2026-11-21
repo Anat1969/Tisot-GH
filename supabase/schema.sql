@@ -131,3 +131,29 @@ $$;
 
 grant execute on function tisot_board(), tisot_cal(text), tisot_watch(text, boolean),
   tisot_save_trip(text, date, date, numeric, text), tisot_remove_trip(uuid) to anon, authenticated;
+
+-- קליטת סריקה מהסורק (scripts/scan.py). בודקת כל שדה ומגבילה ל-400 חלקים בשעה.
+create or replace function tisot_ingest(p_dest text, p_nights int, p_idx int, p_start date, p_end date, p_rows jsonb, p_state text)
+returns int language plpgsql security definer set search_path = public as $$
+declare n int := 0;
+begin
+  if not exists (select 1 from tisot_chunks where dest = p_dest and nights = p_nights and idx = p_idx) then raise exception 'חלק לא מוכר'; end if;
+  if p_state not in ('ok', 'end', 'blocked') then raise exception 'מצב לא תקין'; end if;
+  if p_start is null or p_end is null or p_start < current_date or p_start > current_date + 340 or p_end < p_start or p_end - p_start > 61 then raise exception 'טווח לא תקין'; end if;
+  if jsonb_typeof(p_rows) <> 'array' or jsonb_array_length(p_rows) > 70 then raise exception 'שורות לא תקינות'; end if;
+  if (select count(*) from tisot_chunks where scanned_at > now() - interval '1 hour') >= 400 then raise exception 'יותר מדי עדכונים בשעה'; end if;
+  if p_state = 'ok' then
+    delete from tisot_prices where dest = p_dest and nights = p_nights and out_day between p_start and p_end;
+    insert into tisot_prices(dest, nights, out_day, back_day, price)
+    select p_dest, p_nights, (x->>0)::date, (x->>0)::date + p_nights, (x->>2)::numeric
+    from jsonb_array_elements(p_rows) x
+    where (x->>0)::date between p_start and p_end and (x->>2)::numeric between 50 and 50000
+    on conflict (dest, nights, out_day) do update set price = excluded.price, back_day = excluded.back_day, scanned_at = now();
+    get diagnostics n = row_count;
+  end if;
+  update tisot_chunks set scanned_at = now(), rows = n, state = p_state where dest = p_dest and nights = p_nights and idx = p_idx;
+  delete from tisot_prices where out_day <= current_date;
+  update tisot_state set last_run = now(), last_note = p_state || ' ' || p_dest, blocked_until = null where id = 1;
+  return n;
+end $$;
+grant execute on function tisot_ingest(text, int, int, date, date, jsonb, text) to anon, authenticated;
