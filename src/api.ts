@@ -9,11 +9,13 @@ export type Dest = {
   lo: number | null; av: number | null; med: number | null; hi: number | null; n: number | null; seen: string | null;
   deals: Deal[];
 };
+export type Leg = { airline: string; dep: string; arr: string; minutes: number; stops: number };
+export type Flight = { dest: string; out: string; back: string; o: Leg | null; b: Leg | null; at: string };
 export type Trip = { id: string; dest: string; out_day: string; back_day: string; price: number | null };
 export type Board = {
   now: string; total: number;
   state: { blocked_until: string | null; last_run: string | null; last_note: string | null } | null;
-  dests: Dest[]; trips: Trip[];
+  dests: Dest[]; trips: Trip[]; flights?: Flight[];
 };
 export type Place = { id: number; name: string; local: string; kind: string; why: string; lat: number; lng: number; mins: number; img?: string };
 export type Guide = {

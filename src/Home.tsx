@@ -1,5 +1,6 @@
 import type { Board, Dest } from "./api";
 import { thumb } from "./images";
+import Legs from "./Legs";
 import { MONTHS, bookingUrl, daysUntil, gcalUrl, ils, opportunities, range, tripHash, type Filter } from "./util";
 
 export function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter) => void }) {
@@ -72,6 +73,7 @@ export default function Home({ board, filter, setFilter }: { board: Board; filte
                 <span className="mono">בדרך כלל {ils(top.dest.med)} ₪ הלוך-חזור</span>
               </span>
             </div>
+            <Legs board={board} dest={top.dest.code} out={top.deal.out} back={top.deal.back} />
             <div className="actions">
               <a className="btn primary press" href={tripHash(top.dest.code, top.deal.out, top.deal.back)}>לפתוח את הטיול</a>
               <a className="btn press" href={gcalUrl(top.dest, top.deal.out, top.deal.back, top.deal.p)} target="_blank" rel="noreferrer">ליומן</a>

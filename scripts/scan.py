@@ -6,7 +6,7 @@
   python3 scripts/scan.py --max 40 --seconds 240
 """
 import argparse, json, sys, time, urllib.error, urllib.parse, urllib.request
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 API = "https://ktqmwpbzcnzkhjskqisy.supabase.co/rest/v1"
 KEY = "sb_publishable_IkreG7naPa1h-d4kGp1gpA_sLU4tg5q"  # מפתח ציבורי. הכתיבה נבדקת בפונקציה במסד
@@ -78,12 +78,112 @@ def calendar(dest, start, end, nights):
     return out
 
 
+def post(endpoint, inner):
+    body = "f.req=" + urllib.parse.quote(json.dumps([None, json.dumps(inner, separators=(",", ":"))], separators=(",", ":")))
+    req = urllib.request.Request(f"{BASE}{endpoint}?curr=ILS&hl=en", data=body.encode(), headers={
+        "content-type": "application/x-www-form-urlencoded;charset=UTF-8", "user-agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=40) as r:
+            raw = r.read().decode("utf-8").lstrip()
+    except urllib.error.HTTPError as e:
+        if e.code in (429, 302):
+            raise Blocked(f"status {e.code}") from e
+        raise
+    if raw.startswith(")]}'"):
+        raw = raw[4:]
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line.startswith("["):
+            continue
+        try:
+            outer = json.loads(line)
+        except ValueError:
+            continue
+        for item in outer:
+            if isinstance(item, list) and item and item[0] == "wrb.fr":
+                if item[2] is None:
+                    code = item[5] if len(item) > 5 else None
+                    if code and code[0] in (13, 7, 8):
+                        raise Blocked(f"code {code[0]}")
+                    return None
+                return json.loads(item[2])
+    return None
+
+
+def cheapest_flight(o, d, day):
+    """הטיסה הזולה בכיוון אחד ביום מסוים: חברה, שעות ועצירות. לפרטים בלבד, לא למחיר."""
+    filters = [None, None, 2, None, [], 1, [1, 0, 0, 0], None, None, None, None, None, None, [seg(o, d, day)], None, None, None, 1]
+    data = post("GetShoppingResults", [[], filters + [None] * 10 + [0], 2, 1, 0, 1])
+    rows, best = [], []
+    for i in (2, 3):
+        try:
+            rows.extend(data[i][0])
+        except (IndexError, TypeError):
+            pass
+    for row in rows:
+        try:
+            det = row[0]
+            legs = det[2] or []
+            first, last = legs[0], legs[-1]
+            price = row[1][0][-1] if row[1] and row[1][0] else None
+            names = det[1] if isinstance(det[1], list) else []
+            best.append((price is None, price or 0, max(len(legs) - 1, 0), {
+                "airline": str(names[0] if names else first[22][0])[:60],
+                "dep": datetime(*first[20], *first[8][:2]).strftime("%H:%M"),
+                "arr": datetime(*last[21], *(x or 0 for x in last[10][:2])).strftime("%H:%M"),
+                "minutes": int(det[9]), "stops": max(len(legs) - 1, 0)}))
+        except (IndexError, TypeError, ValueError):
+            continue
+    best.sort(key=lambda f: f[:3])
+    return best[0][3] if best else None
+
+
+def details(limit, pause):
+    """חברה ושעות להזדמנויות שהאפליקציה מציגה, מהטובה ביותר. שתי בקשות לכל הזדמנות."""
+    board = db("rpc/tisot_board", {})
+    today = date.today()
+    fresh = {(f["dest"], f["out"], f["back"]) for f in board.get("flights", [])
+             if f["at"][:10] >= (today - timedelta(days=3)).isoformat()}
+    want = [(9.0, t["dest"], t["out_day"], t["back_day"]) for t in board.get("trips", [])]
+    for d in board["dests"]:
+        if not d.get("med") or not d["deals"]:
+            continue
+        scored = []
+        for x in d["deals"]:
+            until = (date.fromisoformat(x["out"]) - today).days
+            if until >= 1:
+                scored.append((1 - x["p"] / d["med"] + (0.08 if until <= 60 else 0), d["code"], x["out"], x["back"]))
+        if scored:
+            want.append(max(scored))
+    done = 0
+    for _, dest, out, back in sorted(want, reverse=True):
+        if done >= limit:
+            break
+        if (dest, out, back) in fresh:
+            continue
+        try:
+            o = cheapest_flight(ORIGIN, dest, out)
+            time.sleep(pause)
+            b = cheapest_flight(dest, ORIGIN, back)
+        except Blocked as e:
+            print(f"גוגל ביקש הפסקה בפרטי הטיסות ({e}).", flush=True)
+            return False
+        ok = db("rpc/tisot_flight_info", {"p_dest": dest, "p_out": out, "p_back": back, "p_out_leg": o, "p_back_leg": b})
+        done += 1
+        print(f"{dest} {out}: {o and o['airline']} {o and o['dep']} / {b and b['airline']} {b and b['dep']} ({'נשמר' if ok else 'נדחה'})", flush=True)
+        time.sleep(pause)
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=40, help="כמה חלקים לכל היותר בהרצה")
     ap.add_argument("--seconds", type=int, default=240, help="תקציב זמן להרצה")
     ap.add_argument("--pause", type=float, default=4.0, help="שניות בין בקשות")
+    ap.add_argument("--details", type=int, default=3, help="לכמה הזדמנויות להביא חברה ושעות בהרצה")
     a = ap.parse_args()
+    if a.details and not details(a.details, a.pause):
+        return
     t0, today, waited, done = time.time(), date.today(), False, 0
     chunks = db(f"tisot_chunks?select=dest,nights,idx&order=scanned_at.asc.nullsfirst,idx,nights,dest&limit={a.max}")
     for c in chunks:

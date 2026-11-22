@@ -3,6 +3,7 @@ import type { Board } from "./api";
 import Map3D, { type Pin } from "./Map3D";
 import { Filters } from "./Home";
 import { thumb } from "./images";
+import Legs from "./Legs";
 import { bookingUrl, daysUntil, gcalUrl, ils, opportunities, range, tripHash, type Filter } from "./util";
 
 const TLV: [number, number] = [32.01, 34.89];
@@ -40,6 +41,7 @@ export default function World({ board, filter, setFilter }: { board: Board; filt
             <p className="where">{range(cur.deal.out, cur.deal.back)} · {cur.deal.n} לילות</p>
             <p className="price-row"><span className="price mono">{ils(cur.deal.p)}<small> ₪</small></span>
               <span className="vs"><b className={cur.off >= 0.1 ? "off" : ""}>{cur.off > 0 ? `${Math.round(cur.off * 100)}% מתחת לרגיל` : "מחיר רגיל"}</b><span className="mono">בדרך כלל {ils(cur.dest.med)} ₪</span></span></p>
+            <Legs board={board} dest={cur.dest.code} out={cur.deal.out} back={cur.deal.back} />
             <div className="actions">
               <a className="btn primary press" href={tripHash(cur.dest.code, cur.deal.out, cur.deal.back)}>לפתוח את הטיול</a>
               <a className="btn press" href={gcalUrl(cur.dest, cur.deal.out, cur.deal.back, cur.deal.p)} target="_blank" rel="noreferrer">ליומן</a>

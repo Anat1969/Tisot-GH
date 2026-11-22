@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { loadGuide, removeTrip, saveTrip, type Board, type Guide, type Place } from "./api";
 import Map3D, { type Pin } from "./Map3D";
 import Calendar from "./Calendar";
+import Legs from "./Legs";
 import { thumb, usePlaceImages } from "./images";
 import { bookingUrl, daysUntil, flightsUrl, gcalUrl, ils, mapsRouteUrl, nights as nightsOf, range, shortDate, dayName, addDays, tripHash } from "./util";
 
@@ -93,6 +94,8 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
           <a className="btn press" href={gcalUrl(dest, o, b, price)} target="_blank" rel="noreferrer">ליומן</a>
           <button className="btn press" aria-pressed={!!saved} disabled={busy} onClick={toggleSave}>{saved ? "נשמר" : "לשמור"}</button>
         </div>
+
+        <Legs board={board} dest={code} out={o} back={b} />
 
         {/* ציר הזמן של הטיול: מהיום, דרך כל יום בטיול, ועד החזרה */}
         <ol className="axis" aria-label="ציר הטיול">

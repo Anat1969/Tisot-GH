@@ -321,3 +321,15 @@ button.cal-day:hover { transform: scale(1.18); z-index: 2; box-shadow: var(--sh-
   .bar-col .val { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* פרטי הטיסה: חברה ושעות, הלוך וחזור */
+.legs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.leg { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; font-size: 13px; line-height: 1.35; padding: 6px 10px; background: var(--rule-soft); }
+.leg small { font-size: 10px; color: var(--ink-3); }
+.leg b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.leg span.mono { grid-column: 2; font-size: 14px; direction: ltr; text-align: end; }
+.leg small:last-child { grid-column: 2; }
+.t-panel > .legs { margin: 10px 20px 0; }
+.hero .legs { max-width: 420px; margin-top: 8px; }
+.hero .leg { background: rgba(255,255,255,.14); backdrop-filter: blur(8px); color: #fff; }
+.hero .leg small { color: rgba(255,255,255,.7); }
