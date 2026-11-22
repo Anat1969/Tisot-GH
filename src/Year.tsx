@@ -1,5 +1,6 @@
 import type { Board, Deal } from "./api";
 import { MONTHS, ils, tripHash } from "./util";
+import { thumb } from "./images";
 
 /** גרסת השנה: יעדים מול חודשים. כל תא הוא המחיר הזול באותו חודש, והצבע אומר כמה הוא מתחת לרגיל של היעד. */
 export default function Year({ board }: { board: Board }) {
@@ -31,7 +32,7 @@ export default function Year({ board }: { board: Board }) {
           <tbody>
             {dests.map((d) => (
               <tr key={d.code}>
-                <th><a href={tripHash(d.code, d.deals[0].out, d.deals[0].back)}>{d.he}</a></th>
+                <th><a className="y-dest" href={tripHash(d.code, d.deals[0].out, d.deals[0].back)}>{d.img && <img src={thumb(d.img, 120)} alt="" loading="lazy" />}{d.he}</a></th>
                 {yms.map((ym) => {
                   const c = cell(d.deals, ym);
                   return c

@@ -5,7 +5,7 @@ export const ICS_URL = `${URL_}/functions/v1/tisot-ics`;
 
 export type Deal = { out: string; back: string; n: number; p: number };
 export type Dest = {
-  code: string; he: string; en: string; country: string; lat: number; lng: number; active: boolean;
+  code: string; he: string; en: string; country: string; lat: number; lng: number; active: boolean; img: string | null;
   lo: number | null; av: number | null; med: number | null; hi: number | null; n: number | null; seen: string | null;
   deals: Deal[];
 };
@@ -15,7 +15,7 @@ export type Board = {
   state: { blocked_until: string | null; last_run: string | null; last_note: string | null } | null;
   dests: Dest[]; trips: Trip[];
 };
-export type Place = { id: number; name: string; local: string; kind: string; why: string; lat: number; lng: number; mins: number };
+export type Place = { id: number; name: string; local: string; kind: string; why: string; lat: number; lng: number; mins: number; img?: string };
 export type Guide = {
   guide_name: string; tagline: string; intro: string; airport: string;
   stay: { area: string; why: string; lat: number; lng: number }[];
@@ -46,6 +46,7 @@ export const loadCal = (dest: string) => rpc<[string, number, number][]>("tisot_
 export const saveTrip = (dest: string, out: string, back: string, price: number | null) =>
   rpc<string>("tisot_save_trip", { p_dest: dest, p_out: out, p_back: back, p_price: price });
 export const removeTrip = (id: string) => rpc<void>("tisot_remove_trip", { p_id: id });
+export const savePlaceImgs = (dest: string, map: Record<string, string>) => rpc<number>("tisot_place_imgs", { p_dest: dest, p_map: map });
 export const watch = (dest: string, on: boolean) => rpc<boolean>("tisot_watch", { p_dest: dest, p_on: on });
 
 export async function loadGuide(dest: string, create: boolean): Promise<Guide | null> {

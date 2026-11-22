@@ -1,181 +1,293 @@
-/* טיסות. תעודת DNA ב-CLAUDE.md: לוח המראות. לבן, אוויר ושחור; צבע רק עם תפקיד. */
+/* טיסות. תעודת DNA ב-CLAUDE.md: לוח המראות. לבן, אוויר ושחור; צבע רק עם תפקיד; תמונה לכל יעד ולכל מקום. */
 :root {
   --paper: #fff;
-  --ink: #111;
-  --ink-2: #555;
-  --rule-soft: #f3f3f0;
-  --rule: #e2e2dc;
+  --ink: #0f0f0f;
+  --ink-2: #5b5b58;
+  --ink-3: #8e8e89;
+  --rule-soft: #f4f4f1;
+  --rule: #e4e4de;
   --deal: #0a7d4f;        /* ירוק־הזדמנות: מחיר מתחת לרגיל */
+  --deal-2: #7cc9a6;
   --deal-soft: #e3f4ec;
-  --takeoff: #c2410c;     /* כתום־המראה: יוצאים בקרוב */
+  --takeoff: #c2410c;     /* כתום־המראה: יוצאים בקרוב, והטיול שנבחר */
   --marker: #ffe566;      /* מרקר: התובנה */
   --sans: "IBM Plex Sans Hebrew", system-ui, sans-serif;
   --mono: "IBM Plex Mono", "IBM Plex Sans Hebrew", monospace;
-  --sh-1: 0 1px 2px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.06);
-  --sh-2: 0 4px 10px rgba(0,0,0,.10), 0 10px 24px rgba(0,0,0,.08);
+  --sh-1: 0 1px 2px rgba(15,15,15,.07), 0 2px 8px rgba(15,15,15,.06);
+  --sh-2: 0 6px 14px rgba(15,15,15,.10), 0 16px 36px rgba(15,15,15,.10);
+  --sh-3: 0 18px 50px rgba(15,15,15,.22);
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
-body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--paper); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--paper); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
-h1, h2, p { margin: 0; }
-button { font: inherit; color: inherit; cursor: pointer; }
+h1, h2, h3, p, ol, ul, blockquote { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; text-align: start; }
+img { display: block; }
 .mono { font-family: var(--mono); }
-mark { background: linear-gradient(transparent 55%, var(--marker) 55%); color: inherit; font-weight: 600; padding: 0 2px; }
+mark { background: linear-gradient(transparent 58%, var(--marker) 58%); color: inherit; font-weight: 600; padding: 0 2px; }
 :focus-visible { outline: 2px solid var(--deal); outline-offset: 2px; }
 
 /* כל מה שלוחצים עליו: צל, הרמה בריחוף, שקיעה בלחיצה. בלי קו מסגרת. */
-.press { border: 1px solid transparent; border-radius: 0; box-shadow: var(--sh-1); transition: transform .12s, box-shadow .12s, background .12s; }
+.press { border: 1px solid transparent; border-radius: 0; box-shadow: var(--sh-1); transition: transform .14s, box-shadow .14s, background .14s; }
 .press:hover { transform: translateY(-1px); box-shadow: var(--sh-2); }
-.press:active { transform: translateY(1px); box-shadow: 0 0 0 rgba(0,0,0,0); }
-.press:disabled { opacity: .5; cursor: default; transform: none; }
-.chip { background: var(--rule-soft); padding: 4px 10px; font-size: 14px; white-space: nowrap; display: inline-block; }
+.press:active { transform: translateY(1px); box-shadow: none; }
+.press:disabled { opacity: .45; cursor: default; transform: none; box-shadow: var(--sh-1); }
+.chip { background: var(--rule-soft); padding: 4px 10px; font-size: 13px; white-space: nowrap; display: inline-block; }
 .chip[aria-pressed="true"], .chip[aria-current="page"] { background: var(--ink); color: #fff; }
-.btn { background: var(--rule-soft); padding: 10px 16px; font-weight: 500; display: inline-block; text-align: center; }
+.btn { background: var(--rule-soft); padding: 9px 14px; font-weight: 500; font-size: 14px; display: inline-block; text-align: center; white-space: nowrap; }
 .btn.primary { background: var(--ink); color: #fff; }
 .btn[aria-pressed="true"] { background: var(--deal); color: #fff; }
+.glass { background: rgba(255,255,255,.9); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); box-shadow: var(--sh-2); }
 
 .app { height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .bar { display: flex; align-items: center; gap: 16px; padding: 8px 24px; box-shadow: 0 1px 0 var(--rule); position: relative; z-index: 1500; background: var(--paper); }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 20px; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
 .nav { display: flex; gap: 8px; flex: 1; overflow-x: auto; padding: 4px 2px; }
-.radar { font-size: 12px; color: var(--ink-2); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--deal); animation: pulse 2.4s infinite; }
+.radar { font-size: 11px; color: var(--ink-2); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--deal); animation: pulse 2.4s infinite; }
 .dot.wait { background: var(--takeoff); animation: none; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(10,125,79,.5); } 100% { box-shadow: 0 0 0 9px rgba(10,125,79,0); } }
 .main { min-height: 0; overflow: auto; }
-.empty { padding: 32px; color: var(--ink-2); max-width: 46ch; }
+.empty { padding: 24px; color: var(--ink-2); max-width: 46ch; }
 .note { font-size: 12px; color: var(--ink-2); margin-top: 8px; }
-.lbl { font-size: 12px; color: var(--ink-2); margin-inline: 8px 0; }
-.insight { font-size: 15px; margin-top: 8px; }
-.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lbl { font-size: 11px; color: var(--ink-3); margin-inline: 8px 0; letter-spacing: .04em; }
+.insight { font-size: 15px; }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .filters .lbl:first-child { margin-inline-start: 0; }
-
-/* בית: יצירה אחת על הקיר, ולצידה לוח ההמראות. יחס זהוב. */
-.home { height: 100%; display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr); }
-.hero { padding: 24px 32px 16px; display: flex; flex-direction: column; min-height: 0; overflow: auto; }
-.kicker { font-size: 13px; color: var(--ink-2); margin-top: 24px; letter-spacing: .02em; }
-.kicker .soon, .soon { color: var(--takeoff); font-weight: 600; }
-.city { font-size: clamp(56px, 9vw, 128px); line-height: .95; font-weight: 700; letter-spacing: -.02em; animation: land .5s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes land { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
-.where { color: var(--ink-2); font-size: 18px; margin-top: 8px; }
-.price-row { display: flex; align-items: flex-end; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
-.price { font-size: clamp(48px, 6vw, 88px); font-weight: 600; line-height: 1; }
-.price small { font-size: .4em; font-weight: 400; }
-.vs { display: flex; flex-direction: column; font-size: 13px; color: var(--ink-2); padding-bottom: 6px; }
-.vs b { font-size: 18px; color: var(--ink); }
+.kicker { font-size: 12px; letter-spacing: .06em; color: var(--ink-2); }
+.soon { color: var(--takeoff); font-weight: 600; }
+.city { font-weight: 600; letter-spacing: -.03em; line-height: .92; animation: land .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes land { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+.where { color: var(--ink-2); font-size: 16px; }
+.price-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.price { font-weight: 500; line-height: 1; letter-spacing: -.03em; }
+.price small { font-size: .38em; font-weight: 400; letter-spacing: 0; }
+.vs { display: flex; flex-direction: column; font-size: 12px; color: var(--ink-2); padding-bottom: 4px; }
+.vs b { font-size: 16px; color: var(--ink); }
 .vs b.off { color: var(--deal); }
-.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-.months { margin-top: 24px; flex: 1; display: flex; flex-direction: column; min-height: 150px; }
-.bars { display: flex; gap: 6px; align-items: flex-end; flex: 1; min-height: 96px; max-height: 300px; margin-top: auto; }
-.bar-col { flex: 1; min-width: 0; max-width: 96px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; background: none; border: 0; padding: 0; gap: 2px; }
-.bar-col i { display: block; background: var(--rule); transition: height .5s; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* סולם המחיר: אותם חמישה גוונים בלוח השנה, בטבלת השנה ובמקרא */
+.t4 { background: var(--deal); color: #fff; font-weight: 600; }
+.t3 { background: var(--deal-2); }
+.t2 { background: var(--deal-soft); }
+.t1 { background: var(--rule-soft); }
+.t0 { background: #fff; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--rule); }
+.legend { font-size: 11px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.sw { display: inline-block; width: 12px; height: 12px; margin-inline-start: 8px; }
+.sw.ring { background: #fff; box-shadow: inset 0 0 0 2px var(--takeoff); }
+.rank { font-style: normal; background: var(--ink); color: #fff; font-size: 9px; min-width: 14px; height: 14px; display: inline-grid; place-items: center; margin-inline-start: 8px; }
+
+/* בית: תמונת היעד היא הקיר, ועליה ההזדמנות. לצידה לוח ההמראות, ביחס זהוב. */
+.home { height: 100%; display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr); }
+.hero { position: relative; padding: 24px 32px; display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: hidden; background: #1a1a1a center/cover no-repeat; color: #fff; }
+.hero .scrim { position: absolute; inset: 0; background: linear-gradient(200deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.25) 38%, rgba(0,0,0,.82) 100%), linear-gradient(90deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%); }
+.hero > *:not(.scrim) { position: relative; }
+.hero .filters .chip { background: rgba(255,255,255,.88); color: var(--ink); }
+.hero .filters .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.hero .lbl, .hero .kicker, .hero .where, .hero .vs { color: rgba(255,255,255,.82); }
+.hero .kicker { margin-top: auto; }
+.hero .city { font-size: clamp(64px, 10vw, 152px); text-shadow: 0 2px 30px rgba(0,0,0,.35); }
+.hero .price { font-size: clamp(48px, 6vw, 92px); }
+.hero .vs b { color: #fff; }
+.hero .vs b.off, .hero .soon { color: #6ee7a8; }
+.hero .soon { color: #ffb38a; }
+.hero .actions { margin-top: 12px; }
+.hero .btn { background: rgba(255,255,255,.92); color: var(--ink); }
+.hero .btn.primary { background: #fff; }
+.months { margin-top: 16px; background: rgba(255,255,255,.93); color: var(--ink); padding: 12px 16px; box-shadow: var(--sh-2); backdrop-filter: blur(12px); }
+.bars { display: flex; gap: 5px; align-items: flex-end; height: 74px; }
+.bar-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 2px; }
+.bar-col i { display: block; background: var(--rule); transition: height .6s cubic-bezier(.2,.8,.2,1); }
 .bar-col.cheap i { background: var(--deal); }
 .bar-col:hover i { background: var(--ink); }
 .bar-col .val { font-size: 10px; color: var(--ink-2); text-align: center; }
 .bar-col.cheap .val { color: var(--deal); font-weight: 600; }
-.bar-col .mon { font-size: 11px; text-align: center; }
+.bar-col .mon { font-size: 10px; text-align: center; color: var(--ink-2); }
+.months .insight { font-size: 13px; margin-top: 6px; }
 
-.board { background: var(--ink); color: #fff; padding: 24px; display: flex; flex-direction: column; min-height: 0; }
-.board h2 { font-size: 13px; font-weight: 500; letter-spacing: .08em; display: flex; justify-content: space-between; color: #bbb; margin-bottom: 12px; }
-.board .note { color: #999; }
-.rows { display: flex; flex-direction: column; gap: 4px; overflow: auto; min-height: 0; padding: 2px; }
-.row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) auto 4.2em; gap: 12px; align-items: center; padding: 9px 12px; background: #1c1c1c; font-size: 14px; animation: flip .45s both; }
-.rows .row:nth-child(n+2) { animation-delay: .05s; } .rows .row:nth-child(n+4) { animation-delay: .1s; } .rows .row:nth-child(n+7) { animation-delay: .15s; }
+.board { background: var(--ink); color: #fff; padding: 24px 20px; display: flex; flex-direction: column; min-height: 0; }
+.board h2 { font-size: 12px; font-weight: 500; letter-spacing: .1em; display: flex; justify-content: space-between; color: #a8a8a3; margin-bottom: 12px; }
+.board .note { color: #8e8e89; }
+.rows { display: flex; flex-direction: column; gap: 3px; overflow: auto; min-height: 0; padding: 2px; }
+.row { display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1.5fr) auto 3.6em; gap: 12px; align-items: center; padding: 6px 12px 6px 6px; padding-inline: 6px 12px; background: #1b1b1b; font-size: 13px; animation: flip .5s both; }
+.rows .row:nth-child(n+2) { animation-delay: .04s; } .rows .row:nth-child(n+4) { animation-delay: .09s; } .rows .row:nth-child(n+7) { animation-delay: .14s; }
 @keyframes flip { from { opacity: 0; transform: rotateX(-70deg); transform-origin: top; } to { opacity: 1; transform: none; } }
 .row:hover { background: #2a2a2a; }
 .row.first { background: #fff; color: var(--ink); }
-.r-city { font-weight: 600; font-size: 16px; display: flex; flex-direction: column; line-height: 1.2; }
-.r-city small { font-weight: 400; font-size: 11px; opacity: .65; }
-.r-date { font-size: 12px; opacity: .8; }
-.r-price { font-weight: 600; white-space: nowrap; }
-.r-off { text-align: end; font-size: 12px; opacity: .6; direction: ltr; }
-.r-off.good { color: #4ade80; opacity: 1; font-weight: 600; }
+.r-img { width: 44px; height: 44px; object-fit: cover; background: #2a2a2a; }
+.r-city { font-weight: 600; font-size: 16px; display: flex; flex-direction: column; line-height: 1.15; }
+.r-city small { font-weight: 400; font-size: 11px; opacity: .6; }
+.r-date { font-size: 11px; opacity: .78; }
+.r-price { font-weight: 600; font-size: 14px; white-space: nowrap; }
+.r-off { text-align: end; font-size: 12px; opacity: .55; direction: ltr; }
+.r-off.good { color: #5fe0a0; opacity: 1; font-weight: 600; }
 .row.first .r-off.good { color: var(--deal); }
 
-/* מפה */
-.lmap { position: relative; min-height: 280px; }
-.lmap-box { position: absolute; inset: 0; background: var(--rule-soft); z-index: 0; }
-.lmap-toggle { position: absolute; top: 12px; inset-inline-end: 12px; display: flex; gap: 4px; z-index: 500; }
-.pin { position: absolute; left: 0; right: auto; top: 0; transform: translate(-50%, -50%); white-space: nowrap; background: #fff; color: var(--ink); font: 500 12px var(--sans); padding: 2px 7px; box-shadow: var(--sh-2); cursor: pointer; direction: rtl; }
-.pin b { font-family: var(--mono); font-weight: 600; }
-.pin.deal { background: var(--deal); color: #fff; z-index: 2; }
-.pin.origin { background: var(--ink); color: #fff; }
-.pin.stop { background: var(--ink); color: #fff; }
-.pin.stop b { background: #fff; color: var(--ink); padding: 0 5px; margin-inline-end: 3px; }
-.pin.stay { background: var(--takeoff); color: #fff; }
-.pin.hidden-gem { background: var(--marker); }
-.pin.dim { width: 9px; height: 9px; padding: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--ink-2); }
-.leaflet-container { font-family: var(--sans); }
-.legend { font-size: 12px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
-.legend .pin { position: static; transform: none; cursor: default; box-shadow: var(--sh-1); }
+/* המפה: המוקד של האפליקציה. סיכה היא תמונה. */
+.map3d { position: relative; min-height: 320px; background: #dfe6ea; }
+.map3d-box { position: absolute !important; inset: 0; }
+.map3d-toggle { position: absolute; top: 12px; inset-inline-end: 12px; display: flex; gap: 8px; z-index: 5; }
+.map3d-toggle > div { display: flex; box-shadow: var(--sh-2); }
+.map3d-toggle .chip { background: #fff; box-shadow: none; padding: 6px 12px; }
+.map3d-toggle .chip[aria-pressed="true"] { background: var(--ink); }
+.maplibregl-map { font-family: var(--sans); }
+.maplibregl-ctrl-group { border-radius: 0 !important; box-shadow: var(--sh-2) !important; }
+.mk { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; direction: rtl; position: relative; transition: transform .18s; }
+.mk:hover, .mk.on { z-index: 5; transform: translateY(-4px) scale(1.08); }
+.mk i { width: 46px; height: 46px; background: #fff center/cover no-repeat; box-shadow: 0 0 0 2px #fff, var(--sh-2); display: block; }
+.mk span { background: #fff; color: var(--ink); font: 500 12px/1.3 var(--sans); padding: 2px 7px; white-space: nowrap; box-shadow: var(--sh-2); }
+.mk span b { font-family: var(--mono); font-weight: 600; }
+.mk em { position: absolute; top: -7px; inset-inline-start: -7px; background: var(--ink); color: #fff; font: 600 11px/18px var(--mono); min-width: 18px; height: 18px; text-align: center; font-style: normal; box-shadow: 0 0 0 2px #fff; z-index: 1; }
+.mk.on i { box-shadow: 0 0 0 3px var(--takeoff), var(--sh-3); width: 64px; height: 64px; }
+.mk.on span { background: var(--ink); color: #fff; }
+.mk.deal span { background: var(--deal); color: #fff; }
+.mk.deal i { box-shadow: 0 0 0 2px var(--deal), var(--sh-2); }
+.mk.plain i { width: 34px; height: 34px; }
+.mk.origin span { background: var(--ink); color: #fff; }
+.mk.stay span { background: var(--takeoff); color: #fff; font-size: 13px; padding: 4px 9px; }
+.mk.gem span { background: var(--marker); }
+.mk.dim i { width: 26px; height: 26px; opacity: .85; }
+.mk.dim span { display: none; }
+.mk.dim:hover span, .mk.dim.on span { display: block; }
+.mk.dim:not(:has(i))::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--ink-2); }
 
-.world { height: 100%; display: grid; grid-template-columns: minmax(280px, 1fr) minmax(0, 2.618fr); }
-.world-head { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
-.world h1, .year h1, .mine h1 { font-size: 40px; line-height: 1.05; }
+/* גלובוס */
+.world { height: 100%; position: relative; }
+.world-map { position: absolute; inset: 0; }
+.world-head { position: absolute; top: 16px; inset-inline-start: 16px; width: min(380px, calc(100% - 32px)); padding: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 6; }
+.world h1, .year h1, .mine h1 { font-size: 36px; line-height: 1.05; letter-spacing: -.02em; }
+.world .map3d-toggle { inset-inline-end: 12px; }
+.offer { position: absolute; bottom: 24px; inset-inline-start: 16px; width: min(520px, calc(100% - 32px)); display: grid; grid-template-columns: 180px minmax(0, 1fr); z-index: 6; animation: land .4s both; }
+.offer img { width: 100%; height: 100%; object-fit: cover; min-height: 200px; }
+.offer-tx { padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.offer h2 { font-size: 40px; line-height: 1; letter-spacing: -.02em; }
+.offer .price { font-size: 40px; }
+.offer .x { position: absolute; top: 8px; inset-inline-end: 8px; width: 28px; height: 28px; background: #fff; text-align: center; font-size: 18px; line-height: 26px; }
 
 /* שנה */
 .year { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 24px; gap: 16px; }
+.year-head { display: flex; flex-direction: column; gap: 8px; }
 .grid-wrap { overflow: auto; }
 .heat { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: 13px; }
 .heat th { font-weight: 500; text-align: start; padding: 2px 6px; white-space: nowrap; position: sticky; background: var(--paper); }
-.heat thead th { top: 0; text-align: center; z-index: 2; }
+.heat thead th { top: 0; text-align: center; z-index: 2; color: var(--ink-2); }
 .heat thead th small { opacity: .5; margin-inline-start: 2px; }
-.heat tbody th { inset-inline-start: 0; z-index: 1; font-weight: 600; }
+.heat tbody th { inset-inline-start: 0; z-index: 1; font-weight: 600; padding: 0 0 0 8px; }
+.y-dest { display: flex; align-items: center; gap: 8px; }
+.y-dest img { width: 28px; height: 28px; object-fit: cover; }
 .heat td { padding: 0; }
-.cellb { display: block; text-align: center; padding: 5px 4px; min-width: 52px; box-shadow: none; }
+.cellb { display: block; text-align: center; padding: 6px 4px; min-width: 52px; box-shadow: none; }
 .nil { text-align: center; color: var(--rule); }
-.t4, .sw.t4 { background: var(--deal); color: #fff; font-weight: 600; }
-.t3, .sw.t3 { background: #7cc9a6; }
-.t2, .sw.t2 { background: var(--deal-soft); }
-.t1, .sw.t1 { background: var(--rule-soft); }
-.t0, .sw.t0 { background: #fff; color: #999; box-shadow: inset 0 0 0 1px var(--rule); }
-.sw { display: inline-block; width: 14px; height: 14px; margin-inline-start: 8px; }
 
-/* טיול: ההזדמנות, המדריך, המפה */
-.trip { height: 100%; display: grid; grid-template-columns: minmax(280px, 1fr) minmax(0, 1.3fr) minmax(0, 1.5fr); }
-.t-side { padding: 24px; overflow: auto; display: flex; flex-direction: column; }
-.t-side .city { font-size: clamp(44px, 5.2vw, 84px); }
-.t-side .kicker { margin-top: 0; }
-.t-side .price { font-size: 56px; }
-.others { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; align-items: center; }
-.others .chip { font-size: 12px; }
-.others .lbl { margin: 0; width: 100%; }
-.t-guide { padding: 24px; overflow: auto; background: var(--rule-soft); display: flex; flex-direction: column; gap: 16px; }
-.t-guide .chip { background: #fff; }
-.t-guide .chip[aria-pressed="true"] { background: var(--ink); }
-.quote { margin: 0; background: #fff; padding: 16px; box-shadow: var(--sh-1); border-inline-start: 4px solid var(--ink); }
-.tagline { font-size: 22px; font-weight: 600; line-height: 1.25; margin-bottom: 6px; }
-.quote cite { display: block; font-size: 11px; color: var(--ink-2); font-style: normal; margin-top: 8px; }
-.tabs, .daybar { display: flex; gap: 6px; flex-wrap: wrap; }
-.pane { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.pane h2 { font-size: 24px; line-height: 1.2; }
-.stops { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.stops li, .list li { display: flex; gap: 12px; background: #fff; padding: 12px; box-shadow: var(--sh-1); align-items: flex-start; }
-.list li > div { flex: 1; }
-.stops p, .list p { font-size: 14px; color: var(--ink-2); }
-.num { background: var(--ink); color: #fff; min-width: 26px; height: 26px; display: grid; place-items: center; font-size: 13px; }
-.when { font-size: 11px; color: var(--ink-2); margin-inline-start: 6px; }
-.tag { font-size: 11px; padding: 2px 6px; background: var(--rule-soft); white-space: nowrap; }
+/* טיול: לוח צד צר עם כל הסיפור, והמפה על כל השאר */
+.trip { height: 100%; display: grid; grid-template-columns: minmax(360px, 468px) minmax(0, 1fr); }
+.t-panel { display: flex; flex-direction: column; min-height: 0; background: var(--paper); box-shadow: var(--sh-2); z-index: 4; }
+.t-hero { background: #222 center/cover no-repeat; color: #fff; min-height: 216px; display: flex; }
+.t-hero .scrim { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; background: linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.2) 35%, rgba(0,0,0,.84) 100%); }
+.t-hero .city { font-size: 60px; text-shadow: 0 2px 24px rgba(0,0,0,.4); }
+.t-hero .kicker, .t-hero .where, .t-hero .vs { color: rgba(255,255,255,.85); }
+.t-hero .where { font-size: 14px; }
+.t-hero .price { font-size: 44px; }
+.t-hero .vs b { color: #fff; }
+.t-hero .vs b.off { color: #6ee7a8; }
+.t-panel > .actions { padding: 12px 20px 0; flex-wrap: nowrap; }
+.t-panel > .actions .btn { flex: 1; padding-inline: 6px; font-size: 13px; }
+.t-panel > .actions .btn.primary { flex: 1.6; }
+.axis { display: flex; align-items: stretch; margin: 14px 20px 0; position: relative; }
+.axis::before { content: ""; position: absolute; inset-inline: 0; top: 9px; height: 2px; background: var(--rule); }
+.axis li { flex: 1; min-width: 0; position: relative; }
+.axis li.past { flex: .6; }
+.axis li.past span { font-size: 10px; color: var(--ink-3); display: block; padding-top: 18px; }
+.axis li::before { content: ""; position: absolute; top: 4px; inset-inline-start: 0; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--ink-3); }
+.axis li.past::before { background: var(--ink-3); width: 8px; height: 8px; top: 6px; }
+.axis li.on::before { background: var(--takeoff); box-shadow: 0 0 0 3px rgba(194,65,12,.2); }
+.axis button { display: flex; flex-direction: column; padding-top: 20px; width: 100%; line-height: 1.2; }
+.axis button b { font-size: 13px; }
+.axis button span { font-size: 11px; color: var(--ink-2); }
+.axis button small { font-size: 10px; color: var(--ink-3); }
+.axis li.on button b { color: var(--takeoff); }
+.tabs { display: flex; gap: 6px; padding: 12px 20px 10px; overflow-x: auto; box-shadow: 0 1px 0 var(--rule); }
+.t-body { flex: 1; min-height: 0; overflow: auto; padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+.t-body h2 { font-size: 22px; line-height: 1.2; letter-spacing: -.01em; display: flex; flex-direction: column; }
+.t-body h2 .mono { font-size: 11px; color: var(--takeoff); font-weight: 500; letter-spacing: .08em; }
+.quote { border-inline-start: 3px solid var(--ink); padding-inline-start: 12px; font-size: 14px; color: var(--ink-2); }
+.tagline { font-size: 19px; font-weight: 600; line-height: 1.25; color: var(--ink); margin-bottom: 4px; }
+.quote cite { display: block; font-size: 10px; color: var(--ink-3); font-style: normal; margin-top: 6px; }
+.ph { width: 84px; height: 84px; object-fit: cover; flex: none; background: var(--rule-soft); }
+.ph.none { display: grid; place-items: center; font-size: 30px; font-weight: 300; color: var(--ink-3); }
+.card { display: flex; gap: 12px; width: 100%; background: #fff; align-items: stretch; }
+.card.on, .tile.on { box-shadow: 0 0 0 2px var(--takeoff), var(--sh-2); }
+.tx { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; padding-inline-end: 10px; min-width: 0; font-size: 13px; color: var(--ink-2); }
+.tx b { font-size: 15px; color: var(--ink); line-height: 1.25; }
+.tx small { font-size: 10px; color: var(--ink-3); }
+.tl { display: flex; flex-direction: column; gap: 10px; position: relative; padding-inline-start: 18px; }
+.tl::before { content: ""; position: absolute; inset-block: 8px; inset-inline-start: 5px; width: 2px; background: var(--rule); }
+.tl li { position: relative; }
+.tl li::before { content: ""; position: absolute; inset-inline-start: -17px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px #fff; }
+.tl .card { position: relative; padding-top: 0; }
+.tl-when { position: absolute; top: 0; inset-inline-start: 0; z-index: 1; font-size: 10px; background: var(--ink); color: #fff; padding: 1px 6px; display: flex; gap: 6px; }
+.tl-when em { font-style: normal; font-weight: 600; }
+.tl .ph { width: 96px; height: 96px; }
+.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { display: flex; flex-direction: column; width: 100%; height: 100%; background: #fff; position: relative; }
+.tile .ph { width: 100%; height: 116px; }
+.tile .tx { padding: 8px 10px 10px; }
+.tile .tag { position: absolute; top: 8px; inset-inline-start: 8px; }
+.tag { font-size: 10px; padding: 2px 6px; background: var(--rule-soft); white-space: nowrap; align-self: flex-start; }
 .tag.k-סמוי { background: var(--marker); }
 .tag.k-חובה { background: var(--ink); color: #fff; }
 .tag.k-אוכל { background: var(--deal-soft); color: var(--deal); }
-.pane .btn { align-self: flex-start; background: #fff; }
+.tag.k-טבע { background: var(--deal); color: #fff; }
+.list { display: flex; flex-direction: column; gap: 10px; }
+.list li { display: flex; gap: 8px; align-items: stretch; }
+.list .card { box-shadow: var(--sh-1); padding: 4px 12px; gap: 10px; align-items: flex-start; flex: 1; }
+.list .card .tag { margin-top: 10px; }
+.list li > .btn { align-self: center; }
+.t-body > .btn { align-self: flex-start; }
+.t-stage { position: relative; min-height: 0; }
+.t-map { position: absolute; inset: 0; }
+.film { position: absolute; bottom: 16px; inset-inline: 64px 16px; display: flex; gap: 8px; overflow-x: auto; padding: 6px; z-index: 5; scrollbar-width: thin; }
+.frame { flex: none; width: 112px; background: #fff; box-shadow: var(--sh-2); display: flex; flex-direction: column; }
+.frame .ph { width: 112px; height: 74px; }
+.frame span { font-size: 11px; line-height: 1.25; padding: 5px 6px 6px; display: flex; gap: 5px; height: 39px; overflow: hidden; }
+.frame em { font-style: normal; font-weight: 600; background: var(--ink); color: #fff; padding: 0 4px; height: 15px; line-height: 15px; font-size: 10px; }
+.frame.on { box-shadow: 0 0 0 2px var(--takeoff), var(--sh-3); transform: translateY(-4px); }
+
+/* לוח השנה של היעד */
+.cal { display: flex; flex-direction: column; gap: 12px; }
+.cal-head { display: flex; flex-direction: column; gap: 8px; }
+.cal-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 14px; }
+.cal-month h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.cal-month h3 span { color: var(--ink-3); font-weight: 400; font-size: 11px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.cal-dow { font-size: 9px; color: var(--ink-3); text-align: center; }
+.cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; line-height: 1; padding: 0; text-align: center; transition: transform .12s; }
+.cal-day b { font-size: 11px; font-weight: 500; }
+.cal-day small { font-size: 7.5px; opacity: .8; margin-top: 1px; }
+.cal-day.nil { color: var(--rule); }
+button.cal-day:hover { transform: scale(1.18); z-index: 2; box-shadow: var(--sh-2); }
+.cal-day.stay { box-shadow: inset 0 -3px 0 var(--takeoff); }
+.cal-day.sel { box-shadow: inset 0 0 0 2px var(--takeoff); }
+.cal-day em { position: absolute; top: -3px; inset-inline-start: -3px; font-style: normal; background: var(--ink); color: #fff; font-size: 8px; min-width: 12px; height: 12px; line-height: 12px; z-index: 1; }
 
 /* הטיולים שלי */
 .mine { padding: 24px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-content: start; }
 .mine section:last-child { grid-column: 1 / -1; }
-.mine h2 { font-size: 24px; margin-bottom: 8px; }
-.mine h2 span { font-size: 13px; color: var(--ink-2); font-weight: 400; }
+.mine h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: -.01em; }
+.mine h2 span { font-size: 12px; color: var(--ink-2); font-weight: 400; }
 .mine .rows { margin-top: 16px; }
-.row.saved { background: var(--rule-soft); color: var(--ink); box-shadow: var(--sh-1); }
+.mine .actions { margin: 12px 0 4px; }
+.row.saved { background: var(--rule-soft); color: var(--ink); box-shadow: var(--sh-1); grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto auto; padding: 10px 12px; }
 .dest-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .dest-chips small { opacity: .6; }
-.cal { background: var(--rule-soft); padding: 24px; }
+.mine .cal { background: var(--rule-soft); padding: 24px; gap: 0; }
 
 .veil { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: grid; place-items: center; z-index: 3000; padding: 16px; }
-.sheet { background: #fff; padding: 32px; max-width: 520px; box-shadow: var(--sh-2); display: flex; flex-direction: column; gap: 12px; }
-.sheet ol { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; }
+.sheet { background: #fff; padding: 32px; max-width: 520px; box-shadow: var(--sh-3); display: flex; flex-direction: column; gap: 12px; }
+.sheet ol { padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; list-style: decimal; }
 .sheet .btn { align-self: flex-start; }
 
 @media (max-width: 900px) {
@@ -183,20 +295,27 @@ mark { background: linear-gradient(transparent 55%, var(--marker) 55%); color: i
   .main { overflow: visible; }
   .bar { flex-wrap: wrap; padding: 8px 16px; gap: 8px; }
   .nav { order: 3; flex-basis: 100%; }
-  .radar { flex: 1; justify-content: flex-end; font-size: 11px; }
-  .home, .world, .trip, .mine { grid-template-columns: minmax(0, 1fr); height: auto; }
-  .hero { padding: 16px; overflow: visible; }
-  .kicker { margin-top: 16px; }
-  .months { min-height: 0; }
-  .bars { height: 110px; flex: none; }
+  .radar { flex: 1; justify-content: flex-end; font-size: 10px; }
+  .home, .trip, .mine { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .hero { padding: 16px; min-height: 78dvh; }
+  .hero .city { font-size: 72px; }
   .board { padding: 16px; }
   .rows { overflow: visible; }
-  .row { grid-template-columns: minmax(0, 1fr) auto 3.6em; }
-  .row .r-date { grid-column: 1 / -1; grid-row: 2; }
-  .world-map { height: 70dvh; }
-  .t-side, .t-guide { overflow: visible; padding: 16px; }
-  .t-map { height: 60dvh; order: 2; }
-  .t-guide { order: 3; }
+  .row { grid-template-columns: 44px minmax(0, 1fr) auto 3.4em; }
+  .row .r-date { grid-column: 2 / -1; grid-row: 2; }
+  .world { height: calc(100dvh - 96px); }
+  .world-head { position: relative; inset: auto; width: auto; margin: 0; top: 0; }
+  .world-head h1 { font-size: 26px; }
+  .world-head .legend { display: none; }
+  .world { display: flex; flex-direction: column; }
+  .world-map { position: relative; flex: 1; }
+  .offer { grid-template-columns: 110px minmax(0, 1fr); bottom: 12px; }
+  .offer h2, .offer .price { font-size: 28px; }
+  .t-panel { box-shadow: none; order: 2; }
+  .t-stage { height: 62dvh; order: 1; }
+  .t-body { overflow: visible; }
+  .t-panel > .actions { flex-wrap: wrap; }
+  .film { inset-inline: 8px; bottom: 8px; }
   .year, .mine { padding: 16px; }
   .year { height: auto; }
   .bar-col .val { display: none; }

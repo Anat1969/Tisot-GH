@@ -1,4 +1,5 @@
 import type { Board, Dest } from "./api";
+import { thumb } from "./images";
 import { MONTHS, bookingUrl, daysUntil, gcalUrl, ils, opportunities, range, tripHash, type Filter } from "./util";
 
 export function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter) => void }) {
@@ -54,7 +55,8 @@ export default function Home({ board, filter, setFilter }: { board: Board; filte
 
   return (
     <div className="home">
-      <section className="hero">
+      <section className="hero" style={top?.dest.img ? { backgroundImage: `url('${thumb(top.dest.img, 1920)}')` } : undefined}>
+        <div className="scrim" />
         <Filters filter={filter} setFilter={setFilter} />
         {!top ? (
           <p className="empty">אין כרגע הזדמנות שמתאימה לבחירה. הרדאר ממשיך לסרוק, אפשר להרחיב את הבחירה.</p>
@@ -85,6 +87,7 @@ export default function Home({ board, filter, setFilter }: { board: Board; filte
         <div className="rows">
           {opps.map((o, i) => (
             <a key={o.dest.code} className={`row press ${i === 0 ? "first" : ""}`} href={tripHash(o.dest.code, o.deal.out, o.deal.back)}>
+              {o.dest.img ? <img className="r-img" src={thumb(o.dest.img, 120)} alt="" loading="lazy" /> : <span className="r-img" />}
               <span className="r-city">{o.dest.he}<small>{o.dest.country}</small></span>
               <span className="r-date mono">{range(o.deal.out, o.deal.back)}</span>
               <span className="r-price mono">{ils(o.deal.p)} ₪</span>
