@@ -45,6 +45,22 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
   const days = guide ? guide.days.slice(0, Math.min(guide.days.length, n + 1)) : [];
   const place = (id: number) => guide?.places.find((p) => p.id === id);
   const stops = (days[day]?.stops.map((s) => place(s.place)).filter(Boolean) ?? []) as Place[];
+  // המקום שנלחץ: כרטיס עם התמונה בגדול, ומעבר לקודם ולבא באותו רצף שמוצג
+  const focusPlace = focus?.startsWith("p") ? place(Number(focus.slice(1))) ?? null : null;
+  const focusStop = focusPlace && tab === "days"
+    ? days[day]?.stops.map((s, i) => ({ s, i })).find((x) => x.s.place === focusPlace.id) ?? null : null;
+  const seq = guide ? (tab === "days" && stops.length ? stops : tab === "food" ? guide.places.filter((p) => p.kind === "אוכל") : guide.places) : [];
+  const at = focusPlace ? seq.findIndex((p) => p.id === focusPlace.id) : -1;
+  // בנייד המפה והכרטיס נמצאים מעל הרשימה: גוללים אליהם כשנבחר מקום
+  useEffect(() => {
+    if (focus && matchMedia("(max-width: 900px)").matches) document.querySelector(".t-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [focus]);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setFocus(null); };
+    addEventListener("keydown", k);
+    return () => removeEventListener("keydown", k);
+  }, []);
+  const focusNav = { prev: at > 0 ? seq[at - 1] : null, next: at >= 0 && at < seq.length - 1 ? seq[at + 1] : null };
 
   const { pins, lines } = useMemo(() => {
     if (!guide) return { pins: [] as Pin[], lines: [] as [number, number][][] };
@@ -188,7 +204,33 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
       <div className="t-stage">
         <Map3D pins={pins.length ? pins : [{ id: "city", lat: dest.lat, lng: dest.lng, label: dest.he }]} lines={lines} focusId={focus}
           onPick={(id) => setFocus(id)} fitKey={fitKey} className="t-map" />
-        {guide && tab !== "stay" && (
+        {focusPlace && (
+          <article className="pcard" key={focusPlace.id} aria-label={focusPlace.name}>
+            {imgs[focusPlace.id]
+              ? <img className="pcard-img" src={thumb(imgs[focusPlace.id], 960)} alt={focusPlace.name} />
+              : <span className={`pcard-img none k-${focusPlace.kind}`} aria-hidden="true">{focusPlace.name.slice(0, 1)}</span>}
+            <div className="pcard-tx">
+              <p className="kicker mono">
+                <span className={`tag mono k-${focusPlace.kind}`}>{focusPlace.kind}</span>
+                {focusStop ? ` יום ${day + 1} · עצירה ${focusStop.i + 1} · ${focusStop.s.when}` : ""} · כ-{focusPlace.mins} דק'
+              </p>
+              <h2>{focusPlace.name}</h2>
+              <p className="local mono">{focusPlace.local}</p>
+              <p className="why">{focusPlace.why}</p>
+              {focusStop && <p className="note-l">{focusStop.s.note}</p>}
+              <div className="actions">
+                <a className="btn primary press" target="_blank" rel="noreferrer"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${focusPlace.local}, ${dest.en}`)}`}>ב-Google Maps</a>
+                <a className="btn press" target="_blank" rel="noreferrer"
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${focusPlace.lat},${focusPlace.lng}&travelmode=walking`}>ניווט ברגל</a>
+                {focusNav.prev && <button className="btn press" onClick={() => setFocus(`p${focusNav.prev!.id}`)} aria-label="המקום הקודם">הקודם</button>}
+                {focusNav.next && <button className="btn press" onClick={() => setFocus(`p${focusNav.next!.id}`)} aria-label="המקום הבא">הבא</button>}
+              </div>
+            </div>
+            <button className="x press" aria-label="לסגור" onClick={() => setFocus(null)}>×</button>
+          </article>
+        )}
+        {guide && tab !== "stay" && !focusPlace && (
           <div className="film" aria-label="המקומות על המפה">
             {(tab === "days" && stops.length ? stops : guide.places).map((p, i) => (
               <button key={p.id} className={`frame press ${focus === `p${p.id}` ? "on" : ""}`} onClick={() => setFocus(`p${p.id}`)}>
