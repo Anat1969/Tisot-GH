@@ -4,6 +4,7 @@ import Map3D, { type Pin } from "./Map3D";
 import Calendar from "./Calendar";
 import Legs from "./Legs";
 import { thumb, usePlaceImages } from "./images";
+import { fmtM, fmtMin, useWalk } from "./route";
 import { bookingUrl, daysUntil, flightsUrl, gcalUrl, ils, mapsRouteUrl, nights as nightsOf, range, shortDate, dayName, addDays, tripHash } from "./util";
 
 type Tab = "days" | "dates" | "places" | "stay" | "food";
@@ -45,6 +46,8 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
   const days = guide ? guide.days.slice(0, Math.min(guide.days.length, n + 1)) : [];
   const place = (id: number) => guide?.places.find((p) => p.id === id);
   const stops = (days[day]?.stops.map((s) => place(s.place)).filter(Boolean) ?? []) as Place[];
+  // מסלול ההליכה של היום, לאורך הרחובות
+  const walk = useWalk(tab === "days" ? stops : []);
   // המקום שנלחץ: כרטיס עם התמונה בגדול, ומעבר לקודם ולבא באותו רצף שמוצג
   const focusPlace = focus?.startsWith("p") ? place(Number(focus.slice(1))) ?? null : null;
   const focusStop = focusPlace && tab === "days"
@@ -69,13 +72,13 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
     if (tab === "days" && stops.length) {
       const on = new Set(stops.map((p) => p.id));
       return {
-        lines: [stops.map((p) => [p.lat, p.lng] as [number, number])],
+        lines: walk ? [walk.coords] : [],
         pins: [...guide.places.filter((p) => !on.has(p.id)).map((p) => ({ ...pin(p), cls: "dim" })), ...stops.map((p, i) => pin(p, String(i + 1)))],
       };
     }
     return { lines: [], pins: (tab === "food" ? guide.places.filter((p) => p.kind === "אוכל") : guide.places).map((p) => pin(p)) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guide, tab, day, n, imgs]);
+  }, [guide, tab, day, n, imgs, walk]);
 
   if (!dest) return <p className="empty">היעד לא נמצא ברשימה.</p>;
   if (!o || !b) return <p className="empty">עוד אין מחירים ל{dest.he}. הרדאר יגיע אליו בסריקה הקרובה.</p>;
@@ -150,6 +153,12 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
               {days[day] && (
                 <>
                   <h2><span className="mono">יום {day + 1}</span>{days[day].title.replace(/^יום \d+[:.]?\s*/, "")}</h2>
+                  {walk && (
+                    <p className="walk-sum mono">
+                      <b>{fmtM(walk.m)}</b> הליכה · <b>{fmtMin(walk.min)}</b> בדרכים · {stops.length} עצירות
+                      {walk.straight && <span> · הערכה בקו ישר, שירות המסלולים לא ענה</span>}
+                    </p>
+                  )}
                   <ol className="tl">
                     {days[day].stops.map((s, i) => {
                       const p = place(s.place);
@@ -160,6 +169,12 @@ export default function TripPage({ board, code, out, back, onSaved }: Props) {
                             <Photo p={p} />
                             <span className="tx"><b>{p.name}</b><small className="mono">{p.local} · כ-{p.mins} דק'</small><span>{s.note}</span></span>
                           </button>
+                          {(() => {
+                            const k = stops.findIndex((x) => x.id === p.id), leg = walk?.legs[k];
+                            return leg && k < stops.length - 1 && (
+                              <span className="tl-walk mono">{fmtM(leg.m)} ברגל · {fmtMin(leg.min)}{walk?.straight ? " (הערכה)" : ""}</span>
+                            );
+                          })()}
                         </li>
                       );
                     })}

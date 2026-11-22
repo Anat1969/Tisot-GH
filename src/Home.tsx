@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Board, Dest } from "./api";
 import { thumb } from "./images";
 import Legs from "./Legs";
@@ -51,7 +52,13 @@ export function MonthBars({ dest, pick }: { dest: Dest; pick?: (out: string, bac
 
 export default function Home({ board, filter, setFilter }: { board: Board; filter: Filter; setFilter: (f: Filter) => void }) {
   const opps = opportunities(board, filter);
-  const top = opps[0];
+  // לחיצה על שורה בלוח מציגה את היעד על הקיר, עם התמונה בגדול. "לפתוח את הטיול" ממשיך לדף שלו.
+  const [sel, setSel] = useState<string | null>(null);
+  const top = opps.find((o) => o.dest.code === sel) ?? opps[0];
+  const pick = (code: string) => {
+    setSel(code);
+    if (matchMedia("(max-width: 900px)").matches) document.querySelector(".hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const pending = board.dests.filter((d) => d.active && !d.n).length;
 
   return (
@@ -63,8 +70,8 @@ export default function Home({ board, filter, setFilter }: { board: Board; filte
           <p className="empty">אין כרגע הזדמנות שמתאימה לבחירה. הרדאר ממשיך לסרוק, אפשר להרחיב את הבחירה.</p>
         ) : (
           <>
-            <p className="kicker mono">ההזדמנות של עכשיו{top.soon ? <b className="soon"> · בעוד {daysUntil(top.deal.out)} ימים</b> : ` · בעוד ${daysUntil(top.deal.out)} ימים`}</p>
-            <h1 className="city">{top.dest.he}</h1>
+            <p className="kicker mono" key={`k-${top.dest.code}`}>{top === opps[0] ? "ההזדמנות של עכשיו" : `מקום ${opps.indexOf(top) + 1} בלוח`}{top.soon ? <b className="soon"> · בעוד {daysUntil(top.deal.out)} ימים</b> : ` · בעוד ${daysUntil(top.deal.out)} ימים`}</p>
+            <h1 className="city" key={`c-${top.dest.code}`}>{top.dest.he}</h1>
             <p className="where">{top.dest.country} · {range(top.deal.out, top.deal.back)} · {top.deal.n} לילות</p>
             <div className="price-row">
               <span className="price mono">{ils(top.deal.p)}<small> ₪</small></span>
@@ -88,13 +95,13 @@ export default function Home({ board, filter, setFilter }: { board: Board; filte
         <h2 className="mono">לוח ההמראות <span>{opps.length} יעדים</span></h2>
         <div className="rows">
           {opps.map((o, i) => (
-            <a key={o.dest.code} className={`row press ${i === 0 ? "first" : ""}`} href={tripHash(o.dest.code, o.deal.out, o.deal.back)}>
+            <button key={o.dest.code} className={`row press ${o === top ? "first" : ""}`} aria-pressed={o === top} onClick={() => pick(o.dest.code)} title={`${i + 1}. ${o.dest.he}`}>
               {o.dest.img ? <img className="r-img" src={thumb(o.dest.img, 120)} alt="" loading="lazy" /> : <span className="r-img" />}
               <span className="r-city">{o.dest.he}<small>{o.dest.country}</small></span>
               <span className="r-date mono">{range(o.deal.out, o.deal.back)}</span>
               <span className="r-price mono">{ils(o.deal.p)} ₪</span>
               <span className={`r-off mono ${o.off >= 0.25 ? "good" : ""}`}>{o.off > 0 ? `${Math.round(o.off * 100)}%-` : "רגיל"}</span>
-            </a>
+            </button>
           ))}
         </div>
         {pending > 0 && <p className="note mono">עוד {pending} יעדים בסריקה ראשונה. הלוח מתמלא לבד.</p>}

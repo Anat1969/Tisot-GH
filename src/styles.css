@@ -362,3 +362,12 @@ button.cal-day:hover { transform: scale(1.18); z-index: 2; box-shadow: var(--sh-
   .offer { width: auto; inset-inline: 8px; }
   .offer img { aspect-ratio: 16 / 8; }
 }
+
+/* מסלול ההליכה: סיכום היום, ובין כל שתי עצירות המרחק והזמן ברגל */
+.walk-sum { font-size: 12px; color: var(--ink-2); margin-top: -6px; }
+.walk-sum b { color: var(--ink); font-weight: 600; }
+.walk-sum span { color: var(--takeoff); }
+.tl-walk { display: block; font-size: 11px; color: var(--ink-2); padding: 6px 0 0; padding-inline-start: 2px; }
+.tl-walk::before { content: ""; display: inline-block; width: 14px; border-top: 2px dotted var(--ink-3); vertical-align: middle; margin-inline-end: 6px; }
+.row { width: 100%; text-align: start; color: inherit; }
+.hero { transition: background-image .5s; }

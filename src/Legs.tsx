@@ -5,7 +5,7 @@ const Row = ({ dir, l }: { dir: string; l: Leg | null }) => l && (
   <span className="leg">
     <small className="mono">{dir}</small>
     <b>{l.airline}</b>
-    <span className="mono">{l.dep} ← {l.arr}</span>
+    <span className="mono">{l.dep} → {l.arr}</span>
     <small className="mono">{l.stops ? `${l.stops} עצירות` : "ישירה"} · {dur(l.minutes)} שעות</small>
   </span>
 );
